@@ -1,0 +1,417 @@
+openapi: 3.0.3
+info:
+  title: CIS*3760 WaterWise
+  description: |-
+    API contract for the waterwise service for CIS 3760
+    
+    Links:
+    - [Repository](https://gitlab.socs.uoguelph.ca/cis3760f24/eauchart/waterwise)
+  version: 0.0.1
+
+servers:
+  - url: https://eauchart.socs.uoguelph.ca/api
+  - url: localhost:8080/api
+tags:
+  - name: industrial-wastewater
+    description: Industrial Wastewater API
+    # externalDocs:
+    #   description: Source code
+    #   url: https://gitlab.socs.uoguelph.ca/cis3760f24/eauchart/waterwise/-/blob/main/backend/src/main/java/com/cis3760/eauchart/waterwise/controllers/WaterWiseController.java
+  - name: inland-lake
+    description: Inland Lake Drinking Water Quality API
+
+  - name: stream
+    description: Stream Water Quality API
+
+paths:
+  /industrial-wastewater/v1/stations:
+    get:
+      tags:
+        - industrial-wastewater
+      summary: Fetch industrial wastewater stations
+      description: Fetch the station information related to industrial wastewater readings
+      operationId: fetchWastewaterStations
+      responses:
+        '200':
+          description: Successfully operation.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/StationInfo'
+        '400':
+          description: Invalid Input
+        '500':
+          description: An error occurred while processing the request.
+  /inland-lake/v1/stations:
+    get:
+      tags:
+        - inland-lake
+      summary: Fetch inland lake stations
+      description: Fetch the station information related to inland lake drinking water quality readings
+      operationId: fetchLakeStations
+      responses:
+        '200':
+          description: Successfully operation.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/StationInfo'
+        '400':
+          description: Invalid Input
+        '500':
+          description: An error occurred while processing the request.
+  /stream/v1/stations:
+    get:
+      tags:
+        - stream
+      summary: Fetch stream water stations
+      description: Fetch the station information related to stream water quality readings
+      operationId: fetchStreamStations
+      responses:
+        '200':
+          description: Successfully operation.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/StationInfo'
+        '400':
+          description: Invalid Input
+        '500':
+          description: An error occurred while processing the request.
+  /industrial-wastewater/v1/stations/{companyCode}/readings:
+    get:
+      tags:
+        - industrial-wastewater
+      summary: Fetch readings for industrial wastewater station
+      description: Fetch the specified set of readings from an industrial wastewater station
+      operationId: fetchWastewaterReadingsByStation
+      parameters:
+        - name: companyCode
+          in: path
+          description: Company code from which the readings are taken from
+          required: true
+          schema:
+            type: string
+            example: 03007754001
+      responses:
+        '200':
+          description: Successfully operation.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ReadingInfo'
+        '400':
+          description: Invalid Input
+        '500':
+          description: An error occurred while processing the request.
+  /inland-lake/v1/stations/{stationCode}/readings:
+    get:
+      tags:
+        - inland-lake
+      summary: Fetch readings for inland lake station
+      description: Fetch the specified set of readings from an inland lake drinking water station
+      operationId: fetchLakeReadingsByStation
+      parameters:
+        - name: stationCode
+          in: path
+          description: Station code from which the readings are taken from
+          required: true
+          schema:
+            type: string
+            example: 03007754001
+      responses:
+        '200':
+          description: Successfully operation.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ReadingInfo'
+        '400':
+          description: Invalid Input
+        '500':
+          description: An error occurred while processing the request.
+  /stream/v1/stations/{stationCode}/readings:
+    get:
+      tags:
+        - stream
+      summary: Fetch readings for stream station
+      description: Fetch the specified set of readings from a stream water station
+      operationId: fetchStreamReadingsByStation
+      parameters:
+        - name: stationCode
+          in: path
+          description: Station code from which the readings are taken from
+          required: true
+          schema:
+            type: string
+            example: 03007754001
+      responses:
+        '200':
+          description: Successfully operation.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ReadingInfo'
+        '400':
+          description: Invalid Input
+        '500':
+          description: An error occurred while processing the request.
+  /industrial-wastewater/v1/stations/{stationCode}/readings/chemicals:
+    get:
+      tags:
+        - industrial-wastewater
+      summary: Fetch chemical (phosphorus) readings
+      description: Fetch the specified set of readings from a stream water station
+      operationId: fetchWastewaterChemicalsByStation
+      parameters:
+        - name: stationCode
+          in: path
+          description: Station code from which the chemicals are taken from
+          required: true
+          schema:
+            type: string
+            example: 03007754001
+      responses:
+        '200':
+          description: Successfully operation.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ChemicalInfo'
+        '400':
+          description: Invalid Input
+        '500':
+          description: An error occurred while processing the request.
+
+components:
+  schemas:
+    StationInfo:
+      type: object
+      properties:
+        lastUpdated:
+          type: string
+          format: date
+          description: Datetime of when the row was uploaded to the CIS Data Service
+          example: "2024-10-03T21:27:39"
+
+        # Industrial_Wastewater_By_Facility
+        sector:
+          type: string
+          description: Industrial sector of the facility
+          example: ELECTRIC POWER GENERATION
+        worksName:
+          type: string
+          description: Name of the industrial facility
+          example: BRUCE POWER INC. - DEVELOPMENT SERVICES A AND B
+        companyCode:
+          type: string
+          description: Unique code for the company
+          example: 0001840107
+        municipality:
+          type: string
+          description: Municipality where the facility is located
+          example: KINCARDINE, MUNICIPALITY
+
+        # Inland_Lake_Drinking_Water_Quality
+        waterBodyName:
+          type: string
+          description: Name of the stream/lake where the sample was taken
+          example: Blue Chalk Lake
+        stationCode:
+          type: string
+          description: Station code for the sampling point
+          example: BC
+
+        # Inland_Lake_Drinking_Water_Quality + Stream_Water_Quality
+        stationDetails:
+          type: string
+          description: Monitoring station where the sample was collected
+          example: 03007754001
+
+    ReadingInfo:
+      type: object
+      properties:
+        lastUpdated:
+          type: string
+          format: datetime
+          description: Datetime of when the row was uploaded to the CIS Data Service
+          example: "2024-10-03T21:27:39"
+        sampleDate:
+          type: string
+          description: Date when the sample was taken
+          format: date
+          example: 2024-10-03
+
+        # Industrial_Wastewater_By_Facility
+        controlPointName:
+          type: string
+          description: Name of the sampling location within the facility
+          example: PLANT - COMBINED EFFLUENT
+        parameterName:
+          type: string
+          description: Pollutant or substance being measured
+          example: ZINC,  UNFILTERED TOTAL
+        frequency:
+          type: string
+          description: Frequency of sample collection
+          example: MONTHLY
+        componentType:
+          type: string
+          description: Type of measure e.g. Max/Min/Average
+          example: AVERAGE
+        value:
+          type: string
+          description: Measured value of the parameter
+          example: 1.6735
+        unitofMeasure:
+          type: string
+          description: Unit of measurement for the value
+          example: KG/D
+
+        # Inland_Lake_Drinking_Water_Quality
+        granAlkalinity:
+          type: string
+          description: Alkalinity level in the water, indicating its ability to neutralize acids
+          example: 5.61
+        calcium:
+          type: string
+          description: Calcium concentration in milligrams per liter
+          example: 2.06
+        chloride:
+          type: string
+          description: Chloride concentration in milligrams per liter
+          example: 0.27
+        specificConductance:
+          type: string
+          description: Water's ability to conduct electricity, related to the amount of dissolved salts
+          example: 22.1
+        dic:
+          type: string
+          description: Dissolved Inorganic Carbon in the water
+          example: 1.94
+        doc:
+          type: string
+          description: Dissolved Organic Carbon in the water
+          example: 1.8
+        iron:
+          type: string
+          description: Iron concentration in micrograms per liter
+          example: 50
+        potassium:
+          type: string
+          description: Potassium concentration
+          example: 0.31
+        magnesium:
+          type: string
+          description: Magnesium concentration
+          example: 0.56
+        sodium:
+          type: string
+          description: Sodium concentration
+          example: 0.68
+        ammoniumAmmonia:
+          type: string
+          description: Ammonium and ammonia concentration
+          example: 4
+        nitrateNitrite:
+          type: string
+          description: Nitrate and nitrite concentration in micrograms per liter
+          example: 42
+        tkn:
+          type: string
+          description: Total Kjeldahl Nitrogen
+          example: 163
+        tn:
+          type: string
+          description: Total Nitrogen
+          example: 205
+        ph:
+          type: string
+          description: Acidity or basicity of the water
+          example: 6.39
+        totalPhosphorus:
+          type: string
+          description: Total Phosphorus concentration
+          example: 5.1
+        silicate:
+          type: string
+          description: Silicate concentration
+          example: 0.66
+        sulfate:
+          type: string
+          description: Sulfate concentration
+          example: 3.3
+
+        # Stream_Water_Quality
+        parameter:
+          type: string
+          description: Code for the parameter being measured
+          example: AGUT
+        parameterDescription:
+          type: string
+          description: Detailed description of the parameter
+          example: SILVER,   UNFILTERED TOTAL
+        year:
+          type: string
+          description: Year of sample collection
+          example: 2016
+        date:
+          type: string
+          format: date
+          description: Date of sample collection
+          example: 2016-0111
+        time:
+          type: string
+          description: Time of sample collection in HH:MM format
+          example: 14:00
+        fieldNumber:
+          type: string
+          description: Unique field number for the sampling event
+          example: C226442
+        remarkCode:
+          type: string
+          description: Code indicating specific conditions or remarks
+          example: ""
+        result:
+          type: string
+          description: The measured result of the parameter
+          example: -3.51
+        valueQualifier:
+          type: string
+          description: Qualifier for the result (e.g., below detection limit)
+          example: +/-6.0
+        units:
+          type: string
+          description: Unit of measurement for the result
+          example: MICROGRAM PER LITER
+        analysisMethod:
+          type: string
+          description: Analytical method used to measure the parameter
+          example: E3497
+
+    ChemicalInfo:
+      type: object
+      properties:
+        lastUpdated:
+          type: string
+          format: date-time
+          description: "Timestamp of the last update"
+        sampleDate:
+          type: string
+          format: date
+          description: "Date when the sample was taken"
+        measuredValue:
+          type: number
+          format: decimal
+          description: "Measured value of the chemical sample"
+        unitOfMeasure:
+          type: string
+          description: "Unit of measurement for the measured value"
