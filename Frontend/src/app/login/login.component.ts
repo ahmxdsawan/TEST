@@ -61,7 +61,7 @@
   
 // }
 
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { AuthService } from '../auth.service';
 import { Router } from '@angular/router';
 
@@ -70,7 +70,7 @@ import { Router } from '@angular/router';
   templateUrl: './login.component.html',
   styleUrls: ['./login.component.scss']
 })
-export class LoginComponent {
+export class LoginComponent implements OnInit {
   username: string = '';
   password: string = '';
   loginError: string = '';
@@ -83,20 +83,22 @@ export class LoginComponent {
   ngOnInit() {
     if (this.authService.isAuthenticated()) {
       this.router.navigate(['/landing']);
-      return;
     }
   }
 
   login() {
     this.loginError = '';
     this.authService.login(this.username, this.password).subscribe({
-      next: (res) => {
-        console.log('✅ Login successful');
+      next: () => {
         this.router.navigate(['/landing']);
       },
       error: (err) => {
-        console.error('❌ Login failed:', err);
-        this.loginError = 'Invalid username or password';
+        console.error('Login failed:', err);
+        if (err.status === 403 && err.error.detail === "User already has an active session.") {
+          this.loginError = 'Active session detected. Please logout from your other device/browser first.';
+        } else {
+          this.loginError = 'Invalid username or password';
+        }
       }
     });
   }
@@ -105,3 +107,4 @@ export class LoginComponent {
     this.authService.loginWithMicrosoft();
   }
 }
+

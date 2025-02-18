@@ -38,30 +38,17 @@ export class AppComponent implements OnInit {
     // First, check if we're on a SAML redirect
     const urlParams = new URLSearchParams(window.location.search);
     if (urlParams.has('username') && urlParams.has('access')) {
-      console.log('🔍 Handling SAML redirect...');
+      console.log('Handling SAML redirect...');
       this.authService.handleSAMLRedirect();
       return;
     }
 
     // If not a SAML redirect, check for existing session
-    const storedToken = sessionStorage.getItem('access_token');
-    if (storedToken) {
-      console.log('Found existing session, validating...');
-      try {
-        // Validate the stored token
-        if (this.authService.isAuthenticated()) {
-          console.log('Session is valid, redirecting to landing...');
-          this.router.navigate(['/landing']);
-        } else {
-          console.log('Session is invalid, redirecting to login...');
-          this.authService.logout();
-        }
-      } catch (error) {
-        console.error('Error validating session:', error);
-        this.authService.logout();
-      }
+    if (this.authService.isAuthenticated()) {
+      console.log('Valid session found, redirecting to landing...');
+      this.router.navigate(['/landing']);
     } else {
-      console.log('No existing session found');
+      console.log('No valid session found, redirecting to login...');
       this.router.navigate(['/login']);
     }
   }

@@ -50,19 +50,24 @@ export class LandingComponent implements OnInit, OnDestroy {
       return;
     }
 
+    // Initialize username immediately from localStorage
+    const storedUsername = localStorage.getItem('saml_username');
+    if (storedUsername) {
+      this.username = storedUsername;
+    }
+
+    // Subscribe to future changes
     this.subscription = this.authService.getDecodedUsername().subscribe(
       username => {
-        this.username = username;
-        console.log('Current user:', username);
+        if (username) {
+          this.username = username;
+          console.log('Current user:', username);
+        }
       }
     );
   }
 
   ngOnDestroy() {
     this.subscription.unsubscribe();
-  }
-
-  logout() {
-    this.authService.logout();
   }
 }

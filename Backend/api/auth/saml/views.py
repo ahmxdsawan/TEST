@@ -11,6 +11,7 @@ from datetime import datetime, timedelta
 from api.models import UserSession
 from django.utils.timezone import now
 from django.core.exceptions import ObjectDoesNotExist
+from rest_framework import status
 
 
 def prepare_django_request(request):
@@ -63,59 +64,44 @@ def acs(request):
     if errors:
         return JsonResponse({"error": "SAML Authentication failed", "details": errors}, status=400)
 
-    #  Retrieve username from SAML response
+    # Retrieve username from SAML response
     username = saml_auth.get_nameid()
 
-    #  Check if user exists, if not, create it
+    # Check if user exists; if not, create it
     user, created = User.objects.get_or_create(username=username, defaults={"email": username})
     
     if created:
-        # user.set_password(User.objects.make_random_password())  # Set a random password
         user.save()
         print(f"New user created: {username}")
 
+    # *** Single session check without token expiration ***
     try:
         existing_session = UserSession.objects.get(user=user)
-        existing_token = existing_session.access_token
+        if existing_session.is_active:
+            # Active session exists; redirect with error parameter.
+            login_redirect_url = f"{settings.SSO_SP_REDIRECT}/login?error=session_active"
+            return redirect(login_redirect_url)
+    except UserSession.DoesNotExist:
+        pass
 
-        # Check if token is still valid
-        try:
-            existing_session = UserSession.objects.get(user=user)
-        
-            #  If session is inactive, allow login
-            if not existing_session.is_active:
-                print("Inactive session detected. Allowing login.")
-                existing_session.delete()  # Remove stale session
-
-            else:
-                access_token_obj = AccessToken(existing_session.access_token)
-                if access_token_obj["exp"] > now().timestamp():
-                    print("User already has an active session. Redirecting to login.")
-                    login_redirect_url = f"{settings.SSO_SP_REDIRECT}/login?error=session_active"
-                    return redirect(login_redirect_url)
-
-        except TokenError:
-            print("Previous session expired. Allowing new login.")
-            existing_session.delete()  # Remove expired session
-
-    except ObjectDoesNotExist:
-        pass  # No active session exists, allow login
-
-    #  Generate JWT token for the user
+    # Generate JWT tokens for the user
     access_token = AccessToken.for_user(user)
     refresh_token = RefreshToken.for_user(user)
 
     expires_at = datetime.now() + timedelta(minutes=5)  # Set expiration
     session, created = UserSession.objects.update_or_create(
         user=user,
-        defaults={"access_token": str(access_token), "refresh_token": str(refresh_token), "expires_at": expires_at, "is_active": True},
+        defaults={
+            "access_token": str(access_token),
+            "refresh_token": str(refresh_token),
+            "expires_at": expires_at,
+            "is_active": True,
+        }
     )
 
-    #  Redirect to frontend with username and access token
+    # Redirect to frontend with username and access token
     frontend_redirect_url = f"{settings.SSO_SP_REDIRECT}?username={username}&access={access_token}"
-
-    print(f"Redirecting to: {frontend_redirect_url}")  #  Debugging
-
+    print(f"Redirecting to: {frontend_redirect_url}")
     return redirect(frontend_redirect_url)
 
 

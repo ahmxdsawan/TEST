@@ -1,10 +1,12 @@
 from django.contrib import admin
 from django.urls import path, include
-from api.views import LoginView, LogoutView, GetTokenView, MarkInactiveView
+from api.views import LoginView, LogoutView, GetTokenView, MarkInactiveView, ForcedLogoutView
 from rest_framework import permissions
 from drf_yasg.views import get_schema_view
 from drf_yasg import openapi
 from django.urls import path, include
+from rest_framework_simplejwt.views import TokenRefreshView
+
 # from backend.api.views import SAMLLoginView, SAMLLogoutView
 
 # Define schema view
@@ -28,6 +30,8 @@ urlpatterns = [
     path('swagger/', schema_view.with_ui('swagger', cache_timeout=0), name='schema-swagger-ui'),
     path('accounts/', include('allauth.urls')),
     path('logout-inactive/', MarkInactiveView.as_view(), name='logout-inactive'),
+    path('logout/force/', ForcedLogoutView.as_view(), name='forced_logout'),
+    path('token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
 
     path('saml/', include('api.auth.saml.urls')),
     path('api/auth/saml/', include('api.auth.saml.urls')),

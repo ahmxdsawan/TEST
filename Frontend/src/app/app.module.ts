@@ -1,4 +1,4 @@
-import { NgModule } from '@angular/core';
+import { NgModule, APP_INITIALIZER  } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 
 import { AppRoutingModule } from './app-routing.module';
@@ -11,12 +11,15 @@ import { Configuration, LogLevel } from '@azure/msal-browser';
 import { FormsModule } from '@angular/forms';
 import { LandingComponent } from './landing/landing.component';
 import { AuthInterceptor } from './auth/auth.interceptor';
+import { AuthService } from './auth.service';
+
 
 @NgModule({
   declarations: [
     AppComponent,
     LoginComponent,
-    LandingComponent
+    LandingComponent,
+
   ],
   imports: [
     BrowserModule,
@@ -28,6 +31,19 @@ import { AuthInterceptor } from './auth/auth.interceptor';
     {
       provide: HTTP_INTERCEPTORS,
       useClass: AuthInterceptor,
+      multi: true
+    },
+    {
+      provide: APP_INITIALIZER,
+      useFactory: (authService: AuthService) => {
+        return () => {
+          // Initialize auth service
+          return new Promise((resolve) => {
+            resolve(true);
+          });
+        };
+      },
+      deps: [AuthService],
       multi: true
     }
   ],
