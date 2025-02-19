@@ -1,0 +1,138 @@
+.logo {
+  position: absolute; /* Or use fixed if you want it to stay while scrolling */
+  top: 20px;          /* Adjust spacing from the top */
+  left: 20px;         /* Adjust spacing from the left */
+  z-index: 100;       /* Ensure it stays above the background and other elements */
+  
+  img {
+    height: 100px;     /* Set your desired height */
+    width: auto;      /* Maintain aspect ratio */
+  }
+}
+
+.login-page {
+  height: 100vh;
+  width: 100%;
+  display: flex;
+  justify-content: center; 
+  align-items: center;     
+  background-image: url('/assets/images/YamaguchiShinMInev5GG.jpg');
+  background-size: cover;
+  background-position: center;
+}
+
+.login-container {
+  width: 400px;
+  background-color: white;
+  padding: 40px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  margin-left: 50%;
+  border-radius: 3%;
+}
+
+.welcome-text {
+  font-size: 24px;
+  color: #333;
+  margin-bottom: 20px;
+  text-align: center;
+}
+
+.input-container {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+
+  input {
+    padding: 12px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 14px;
+
+    &:focus {
+      outline: none;
+      border-color: #0066ff;
+    }
+  }
+}
+
+.error-text {
+  color: #ff4444;
+  font-size: 12px;
+}
+
+.checkbox-container {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  
+  label {
+    font-size: 14px;
+    color: #666;
+  }
+}
+
+.sign-in-btn {
+  background-color: #0066ff;
+  color: white;
+  border: none;
+  padding: 12px;
+  border-radius: 4px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s;
+
+  &:hover {
+    background-color: #0052cc;
+  }
+}
+
+.forgot-link {
+  color: #0066ff;
+  text-decoration: none;
+  text-align: center;
+  font-size: 14px;
+
+  &:hover {
+    text-decoration: underline;
+  }
+}
+
+.separator {
+  display: flex;
+  align-items: center;
+  text-align: center;
+  margin: 15px 0;
+
+  &::before,
+  &::after {
+    content: '';
+    flex: 1;
+    border-bottom: 1px solid #ddd;
+  }
+
+  span {
+    padding: 0 10px;
+    color: #666;
+    font-size: 14px;
+  }
+}
+
+.microsoft-btn {
+  padding: 12px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  background-color: #0066ff;
+  cursor: pointer;
+  transition: background-color 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  font-size: 14px;
+
+  &:hover {
+    background-color: #f5f5f5;
+  }
+}
