@@ -13,6 +13,9 @@ from rest_framework import status
 from rest_framework.response import Response
 from django.utils import timezone
 from datetime import datetime, timedelta
+import hashlib
+from api import models
+
 
 def prepare_django_request(request):
     """
@@ -59,11 +62,24 @@ def acs(request):
     # Retrieve the username from the SAML response.
     username = saml_auth.get_nameid()
 
-    # Get (or create) the user.
-    user, created = User.objects.get_or_create(username=username, defaults={"email": username})
-    if created:
-        user.save()
-        print(f"New user created: {username}")
+    try:
+        user = User.objects.get(email=username)
+        print("User is:", user)
+    except User.DoesNotExist:
+        return JsonResponse({"error": "User does not exist"}, status=404)
+    
+    # Validate that the user exists in your custom tables.
+    try:
+        # Here we assume the username is an email.
+        cseye_user = models.UsersUserCi.objects.get(contact_value=username, contact_type='email').user
+    except models.UsersUserCi.DoesNotExist:
+        try:
+            cseye_user = models.UsersUsers.objects.get(username__iexact=username)
+        except models.UsersUsers.DoesNotExist:
+            return JsonResponse({"error": "User does not exist in custom tables"}, status=401)
+    if not cseye_user.isActive:
+        return JsonResponse({"error": "User is disabled"}, status=403)
+
 
     # Enforce single-session: if an active session exists, redirect with an error.
     try:
@@ -77,13 +93,27 @@ def acs(request):
     # Generate JWT tokens.
     refresh = RefreshToken.for_user(user)
     access_token = refresh.access_token
+
+    # Add basic user details.
+    access_token["first_name"] = user.first_name
+    access_token["last_name"] = user.last_name
     access_token["username"] = user.username
+    access_token["email"] = user.email
+
+    # Retrieve roles from your custom user roles table and encode them using MD5.
+    encoded_roles = []
+    roles_qs = models.UsersUserRl.objects.filter(user=cseye_user)  # Adjust query as needed
+    for role_entry in roles_qs:
+        # Assuming each role_entry has a related role with a role_name field.
+        role_name = role_entry.role.role_name  
+        encoded_roles.append(hashlib.md5(role_name.encode('utf-8')).hexdigest())
+    access_token["roles"] = encoded_roles
 
     # Get current time and expiration time
     current_time = timezone.now()
     expires_at = current_time + refresh.access_token.lifetime
-
     expires_at_iso = expires_at.strftime('%Y-%m-%dT%H:%M:%S.%fZ')
+    access_token["expiry"] = expires_at_iso
 
 
     # Create or update the user session.

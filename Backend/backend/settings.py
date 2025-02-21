@@ -24,6 +24,7 @@ import boto3
 from dotenv import load_dotenv
 from api.auth.saml.saml_settings import create_saml_settings
 
+
 load_dotenv()
 
 config = configparser.ConfigParser()
@@ -217,7 +218,7 @@ SAML_SETTINGS = create_saml_settings()
 
 
 SIMPLE_JWT = {
-    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=1),
+    'ACCESS_TOKEN_LIFETIME': timedelta(days=1),
     'REFRESH_TOKEN_LIFETIME': timedelta(days=1),
     'ROTATE_REFRESH_TOKENS': False,
     'BLACKLIST_AFTER_ROTATION': True,
@@ -232,8 +233,8 @@ CACHES = {
     }
 }
 
-
 MIDDLEWARE = [
+    'backend.middleware.RemoveHeadersMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -295,15 +296,11 @@ WSGI_APPLICATION = 'backend.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',  # Default to MySQL
-        'NAME': 'my_database',
-        'USER': 'root',
-        'PASSWORD': 'password123',
-        'HOST': 'localhost',
+        'NAME': 'CSEyeWorks',
+        'USER': 'dbadmin',
+        'PASSWORD': 'SCADAsolutions',
+        'HOST': 'cseye-dev.cnxxopvrojrb.us-east-1.rds.amazonaws.com',
         'PORT': '3306',
-        'OPTIONS': {
-            'charset': 'utf8mb4',
-            'init_command': "SET sql_mode='STRICT_TRANS_TABLES'"
-        }
     },
     'postgres': {
         'ENGINE': 'django.db.backends.postgresql',  # PostgreSQL as secondary
