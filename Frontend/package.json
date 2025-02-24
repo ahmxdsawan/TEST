@@ -1,5 +1,5 @@
 {
-  "name": "cseye-fe",
+  "name": "re",
   "version": "0.0.0",
   "scripts": {
     "ng": "ng",
@@ -20,7 +20,9 @@
     "@angular/router": "^17.3.0",
     "@azure/msal-angular": "^4.0.2",
     "@azure/msal-browser": "^4.0.2",
+    "@ctrl/tinycolor": "^4.1.0",
     "angular-oauth2-oidc": "^17.0.2",
+    "ng-zorro-antd": "^17.4.1",
     "rxjs": "~7.8.0",
     "tslib": "^2.8.1",
     "zone.js": "~0.14.3"

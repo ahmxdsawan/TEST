@@ -8,11 +8,12 @@ from rest_framework.permissions import IsAuthenticated
 from .models import UserSession
 from drf_yasg.utils import swagger_auto_schema
 from drf_yasg import openapi
-from django.utils.timezone import now
+from django.utils.timezone import now, timezone
 from api.custom_jwt_authentication import CookieJWTAuthentication
 from rest_framework_simplejwt.authentication import JWTAuthentication
 from api import models
 from django.contrib.auth import login
+from django.utils import timezone
 
 import hashlib
 
@@ -148,16 +149,13 @@ class LogoutView(APIView):
         responses={200: "Logged out successfully", 401: "Unauthorized"},
     )
     def post(self, request):
-        print("Logout request received")
         user = request.user if request.user.is_authenticated else None
         if user:
             try:
-                print(f"Processing logout for user: {user.username}")
                 session = UserSession.objects.filter(user=user).first()
                 if session:
                     session.is_active = False
                     session.save()
-                    print("Session marked as inactive")
                 response = Response({"detail": "Logged out successfully"}, status=status.HTTP_200_OK)
                 response.delete_cookie("access_token", path="/")
                 response.delete_cookie("refresh_token", path="/")
@@ -166,7 +164,6 @@ class LogoutView(APIView):
                 print(f"Error during logout: {str(e)}")
                 return Response({"detail": f"Error during logout: {str(e)}"},
                                 status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-        print("User not authenticated")
         return Response({"detail": "User not authenticated"}, status=status.HTTP_401_UNAUTHORIZED)
 
 
@@ -197,29 +194,64 @@ class ForcedLogoutView(APIView):
 
 
 
+# class GetTokenView(APIView):
+#     authentication_classes = [CookieJWTAuthentication]
+#     permission_classes = []
+
+#     def get(self, request):
+#         print("Get-token request received")
+
+#         if not request.user or not request.user.is_authenticated:
+#             print("User not authenticated")
+#             return Response({"username": None}, status=status.HTTP_200_OK)
+
+#         try:
+#             session = UserSession.objects.get(user=request.user, is_active=True)
+#             print(f"Found active session for: {request.user.username}")
+            
+#             # Add expiration time from the session
+#             return Response({
+#                 "username": request.user.username,
+#                 "session_active": True,
+#                 "expires_at": session.expires_at.isoformat() if session.expires_at else None
+#             }, status=status.HTTP_200_OK)
+#         except UserSession.DoesNotExist:
+#             print(f"No active session found for: {request.user.username}")
+#             return Response({"username": None}, status=status.HTTP_200_OK)
+
 class GetTokenView(APIView):
     authentication_classes = [CookieJWTAuthentication]
     permission_classes = []
 
     def get(self, request):
-        print("Get-token request received")
 
         if not request.user or not request.user.is_authenticated:
-            print("User not authenticated")
             return Response({"username": None}, status=status.HTTP_200_OK)
 
         try:
-            session = UserSession.objects.get(user=request.user, is_active=True)
-            print(f"Found active session for: {request.user.username}")
+            # Check if there's an active session for this user
+            session = UserSession.objects.get(
+                user=request.user,
+                is_active=True,
+                expires_at__gt=timezone.now()  # Add expiration check
+            )
             
-            # Add expiration time from the session
+            # Check if this is the same browser/device
+            current_token = request.COOKIES.get('access_token')
+            if current_token != session.access_token:
+                return Response({
+                    "error": "Session active in another browser/device",
+                    "username": None,
+                    "session_active": True
+                }, status=status.HTTP_403_FORBIDDEN)
+
             return Response({
                 "username": request.user.username,
                 "session_active": True,
                 "expires_at": session.expires_at.isoformat() if session.expires_at else None
             }, status=status.HTTP_200_OK)
+
         except UserSession.DoesNotExist:
-            print(f"No active session found for: {request.user.username}")
             return Response({"username": None}, status=status.HTTP_200_OK)
 
 

@@ -1,6 +1,18 @@
 /* You can add global styles to this file, and also import other style files */
-html, body {
-    height: 100%;
-    margin: 0;
-    padding: 0;
+
+  /* Dark theme overrides: add these rules to styles.scss or a global stylesheet */
+  .dark-theme {
+    background-color: #1d1d1d !important;
+    color: #f0f0f0 !important;
   }
+  
+  .dark-theme nz-header {
+    background: #000 !important;
+  }
+  
+  .dark-theme nz-content,
+  .dark-theme nz-footer {
+    background: #1d1d1d !important;
+    color: #f0f0f0 !important;
+  }
+  

@@ -223,7 +223,14 @@ SIMPLE_JWT = {
     'ROTATE_REFRESH_TOKENS': False,
     'BLACKLIST_AFTER_ROTATION': True,
     'ALGORITHM': 'HS256',
-    'SIGNING_KEY': 'your_secret_key_here',
+    'SIGNING_KEY': secrets['jwtSecretKey'],
+    'AUTH_HEADER_TYPES': ('Bearer',),
+    'AUTH_TOKEN_CLASSES': ('rest_framework_simplejwt.tokens.AccessToken',),
+    'TOKEN_TYPE_CLAIM': 'token_type',
+    'JTI_CLAIM': 'jti',
+    'SLIDING_TOKEN_REFRESH_EXP_CLAIM': 'refresh_exp',
+    'SLIDING_TOKEN_LIFETIME': timedelta(days=1),
+    'SLIDING_TOKEN_REFRESH_LIFETIME': timedelta(days=1),
 }
 
 CACHES = {
@@ -252,16 +259,43 @@ CORS_ALLOWED_ORIGINS = [
     "http://127.0.0.1:8000",  
     "http://localhost:8000",  
 ]
+CORS_EXPOSE_HEADERS = ['Content-Type', 'X-CSRFToken']
+CORS_ALLOW_METHODS = [
+    'GET',
+    'POST',
+    'PUT',
+    'PATCH',
+    'DELETE',
+    'OPTIONS'
+]
 CSRF_TRUSTED_ORIGINS = [
     "http://localhost:4200",  # Prevent CSRF issues
     "http://127.0.0.1:8000",
     "http://localhost:8000",
 ]
 
-# SECURE_SSL_REDIRECT = True
-# SECURE_HSTS_SECONDS = 3600  # HTTP Strict Transport Security
-# SECURE_HSTS_INCLUDE_SUBDOMAINS = True
-# SECURE_HSTS_PRELOAD = True
+SECURE_BROWSER_XSS_FILTER = True
+SECURE_CONTENT_TYPE_NOSNIFF = True
+SESSION_COOKIE_SECURE = True
+CSRF_COOKIE_SECURE = True
+CSRF_COOKIE_HTTPONLY = True
+CSRF_COOKIE_SAMESITE = 'Strict'
+SESSION_COOKIE_SAMESITE = 'Strict'  # Instead of None
+SESSION_COOKIE_HTTPONLY = True
+
+# SECURE_SSL_REDIRECT = True  # Uncomment this
+# SECURE_HSTS_SECONDS = 31536000  # Change from 3600 to 31536000 (1 year)
+# SECURE_HSTS_INCLUDE_SUBDOMAINS = True  # Uncomment this
+# SECURE_HSTS_PRELOAD = True  # Uncomment this
+
+SESSION_ENGINE = 'django.contrib.sessions.backends.db'
+SESSION_EXPIRE_AT_BROWSER_CLOSE = True
+SESSION_COOKIE_AGE = 86400  # 24 hours in seconds
+SESSION_COOKIE_DOMAIN = None  # This ensures cookies only work for your domain
+
+SECURE_REFERRER_POLICY = 'same-origin'
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+X_FRAME_OPTIONS = 'DENY'
 
 ROOT_URLCONF = 'backend.urls'
 

@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { Router } from '@angular/router';
-import { AuthService } from '../../auth.service';  // Update this path based on your structure
+import { AuthService } from '../../auth.service';  
 
 @Injectable({
   providedIn: 'root'

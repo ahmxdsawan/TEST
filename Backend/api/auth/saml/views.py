@@ -15,6 +15,8 @@ from django.utils import timezone
 from datetime import datetime, timedelta
 import hashlib
 from api import models
+from django.utils import timezone
+from urllib.parse import quote
 
 
 def prepare_django_request(request):
@@ -64,7 +66,6 @@ def acs(request):
 
     try:
         user = User.objects.get(email=username)
-        print("User is:", user)
     except User.DoesNotExist:
         return JsonResponse({"error": "User does not exist"}, status=404)
     
@@ -83,10 +84,15 @@ def acs(request):
 
     # Enforce single-session: if an active session exists, redirect with an error.
     try:
-        existing_session = UserSession.objects.get(user=user)
-        if existing_session.is_active:
-            login_redirect_url = f"{settings.SSO_SP_REDIRECT}/login?error=session_active"
-            return redirect(login_redirect_url)
+        existing_session = UserSession.objects.get(
+            user=user, 
+            is_active=True,
+            expires_at__gt=timezone.now()
+        )
+        print("Active session detected during SAML login")
+        message = quote("You have an active session in another browser. Please logout first.")
+        login_redirect_url = f"{settings.SSO_SP_REDIRECT}/login?error=session_active&message={message}"
+        return redirect(login_redirect_url)
     except UserSession.DoesNotExist:
         pass
 
@@ -127,7 +133,7 @@ def acs(request):
         }
     )
 
-    # Build the frontend redirect URL (only include the username).
+    # Build the frontend redirect URL.
     frontend_redirect_url = f"{settings.SSO_SP_REDIRECT}?username={username}&expires_at={expires_at_iso}"
     response = redirect(frontend_redirect_url)
 
@@ -140,7 +146,7 @@ def acs(request):
         value=str(access_token),
         httponly=True,
         secure=is_secure,
-        samesite="None",
+        samesite="Lax",
         expires=expires_at,
         path="/"
     )
@@ -149,7 +155,7 @@ def acs(request):
         value=str(refresh),
         httponly=True,
         secure=is_secure,
-        samesite="None",
+        samesite="Lax",
         max_age=60 * 60 * 24,  # 1 day (adjust as needed)
         path="/"
     )

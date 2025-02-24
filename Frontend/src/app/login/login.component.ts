@@ -110,6 +110,7 @@
 
 import { Component } from '@angular/core';
 import { AuthService } from '../auth.service';
+import { ActivatedRoute } from '@angular/router';
 
 @Component({
   selector: 'app-login',
@@ -119,21 +120,43 @@ import { AuthService } from '../auth.service';
 export class LoginComponent {
   username: string = '';
   password: string = '';
-  rememberMe: boolean = false;
   submitted: boolean = false;
+  errorMessage: string = '';
 
-  constructor(private authService: AuthService) { }
+  constructor(
+    private authService: AuthService,
+    private route: ActivatedRoute
+  ) {}
 
-  onSubmit() {
-    this.authService.login(this.username, this.password).subscribe({
+  ngOnInit() {
+    // Check for error messages
+    this.route.queryParams.subscribe(params => {
+      if (params['error']) {
+          if (params['error'] === 'session_active') {
+              this.errorMessage = params['message'] || 'You have an active session in another browser. Please logout from there first.';
+          } else if (params['error'] === 'invalid_saml') {
+              this.errorMessage = params['message'] || 'SAML authentication failed';
+          }
+      }
+  });
+}
+
+onSubmit() {
+  this.submitted = true;
+  this.authService.login(this.username, this.password).subscribe({
       next: () => {
-        console.log('Login successful');
+          console.log('Login successful');
       },
       error: (err) => {
-        console.error('Login failed', err);
+          console.error('Login failed', err);
+          if (err.status === 403 && err.error.detail === "User already has an active session.") {
+              this.errorMessage = 'You have an active session in another browser. Please logout from there first.';
+          } else {
+              this.errorMessage = 'Invalid username or password';
+          }
       }
-    });
-  }
+  });
+}
 
   loginWithMicrosoft() {
     this.authService.loginWithMicrosoft();

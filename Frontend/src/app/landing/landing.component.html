@@ -1,3 +1,89 @@
-<h1>Welcome, {{ username || 'Guest' }}!</h1>
+<!-- <h1>Welcome, {{ username || 'Guest' }}!</h1>
 <p>You have successfully logged in.</p>
-<button (click)="authService.logout(); username = null;">Logout</button>
+<button (click)="authService.logout(); username = null;">Logout</button> -->
+
+<!-- <nz-layout style="min-height: 100vh;">
+    <nz-layout>
+      <nz-header style="background: #001529; padding: 0 24px; display: flex; justify-content: space-between; align-items: center;">
+        Left: Logo
+        <div class="logo" style="color: #fff; font-size: 20px;">
+            <img src="/assets/images/login.png" style="width: 100px; height: auto; margin-right: 10px;">
+        </div>
+        Right: Logout Button
+        <button nz-button nzType="primary" (click)="logout()">Logout</button>
+      </nz-header>
+      <nz-content style="padding: 24px;">
+        <nz-card nzTitle="Welcome, {{ username || 'Guest' }}!" style="max-width: 600px; margin: auto;">
+          <p>You have successfully logged in.</p>
+        </nz-card>
+      </nz-content>
+    </nz-layout>
+  </nz-layout> -->
+  <nz-layout style="min-height: 100vh;">
+    <!-- Sider -->
+    <nz-sider 
+        nzCollapsible 
+        [(nzCollapsed)]="isCollapsed" 
+        [nzTrigger]="null" 
+        [nzWidth]="200"
+        [nzCollapsedWidth]="80"
+        nzTheme="dark"
+        [nzBreakpoint]="'lg'"
+        [nzWidth]="200">
+      
+      <div class="logo">
+        <img src="/assets/images/RE-Favicon.png" alt="Logo" />
+      </div>
+      
+      <ul nz-menu nzTheme="dark" nzMode="inline" [nzInlineCollapsed]="isCollapsed">
+        <li *ngFor="let item of menuItems" nz-submenu [nzTitle]="item.title" [nzIcon]="item.icon">
+          <ul *ngIf="item.children">
+            <li *ngFor="let child of item.children" nz-menu-item (click)="onMenuClick(child)">
+              {{ child }}
+            </li>
+          </ul>
+        </li>
+      </ul>
+    </nz-sider>
+  
+    <nz-layout>
+      <!-- Header -->
+      <nz-header class="header">
+        <span
+          class="trigger"
+          nz-icon
+          [nzType]="isCollapsed ? 'menu-unfold' : 'menu-fold'"
+          (click)="isCollapsed = !isCollapsed">
+        </span>
+        
+        <div class="header-right">
+          <nz-avatar 
+            [nzText]="getUserInitials()" 
+            nzSize="default"
+            style="background-color: #949ca3">
+          </nz-avatar>
+          <!-- <span class="username">{{ username }}</span> -->
+          <button 
+            nz-button 
+            nzType="default" 
+            nzGhost 
+            (click)="logout()">
+            Logout
+          </button>
+        </div>
+      </nz-header>
+  
+      <!-- Main Content -->
+      <nz-content class="main-content">
+        <nz-card class="welcome-card" nzTitle="Welcome to Dashboard">
+          <div nz-row [nzGutter]="16">
+            <div nz-col [nzSpan]="24">
+              <p>Welcome back, {{ username || 'Guest' }}! You have successfully logged in.</p>
+            </div>
+          </div>
+        </nz-card>
+      </nz-content>
+  
+
+    </nz-layout>
+  </nz-layout>

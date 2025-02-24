@@ -27,7 +27,7 @@ import { Router } from '@angular/router';
   styleUrl: './app.component.scss'
 })
 export class AppComponent implements OnInit {
-  title = 'cseyeFe';
+  title = 'RE';
   
   constructor(
     private authService: AuthService,
@@ -40,16 +40,12 @@ export class AppComponent implements OnInit {
     const username = url.searchParams.get('username');
 
     if (username) {
-      console.log('SAML redirect detected, handling...');
       this.authService.handleSAMLRedirect();
     } else {
       // Only check authentication if not a SAML redirect
-      console.log('Not a SAML redirect, checking authentication...');
       if (this.authService.isAuthenticated()) {
-        console.log('User is authenticated, going to landing');
         this.router.navigate(['/landing']);
       } else {
-        console.log('User is not authenticated, going to login');
         this.router.navigate(['/login']);
       }
     }

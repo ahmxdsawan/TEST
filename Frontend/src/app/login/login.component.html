@@ -1,28 +1,7 @@
-<!-- <div class="login-container">
-    <h2>Login</h2>
-    <form (ngSubmit)="onSubmit()">
-      <label for="username">Username:</label>
-      <input type="text" [(ngModel)]="username" name="username" id="username" required>
-      
-      <label for="password">Password:</label>
-      <input type="password" [(ngModel)]="password" name="password" id="password" required>
-      
-      <button type="submit">Login</button>
-    </form>
-    
-    <button (click)="loginWithMicrosoft()">Login with Microsoft</button>
-  </div>
-   -->
-
-   <!-- login.component.html -->
-<!-- login.component.html -->
-<div class="logo">
-  <img src="/assets/images/login.png" alt="Logo">
-</div>
-
-<div class="login-page">
+<!-- <div class="login-page">
   <div class="login-container">
     <h1 class="welcome-text">Login</h1>
+    <img src="/assets/images/login.png" alt="Logo" class="logo">
     
     <div class="input-container">
       <input 
@@ -55,5 +34,84 @@
     <button class="sign-in-btn" (click)="loginWithMicrosoft()">
       Sign in with Microsoft
     </button>
+  </div>
+</div> -->
+
+<div class="login-page">
+  <!-- Left Side: Blank background with a centered logo -->
+  <div class="left-side">
+    <div class="logo-container">
+      <img src="/assets/images/login.png" alt="Logo" class="logo" />
+    </div>
+  </div>
+
+  <!-- Right Side: Login form -->
+  <div class="right-side">
+    <div class="login-content">
+      <h1 class="title">Welcome to RE</h1>
+
+      <!-- Microsoft Sign In -->
+      <button
+        nz-button
+        nzType="default"
+        class="ms-button"
+        (click)="loginWithMicrosoft()"
+      >
+        Sign in with Microsoft
+      </button>
+
+      <!-- Separator -->
+      <div class="separator">
+        <span>or sign in with</span>
+      </div>
+
+      <!-- Username/Password Form (no card) -->
+      <!-- <div class="form-container"> -->
+        <form nz-form (ngSubmit)="onSubmit()">
+          <nz-form-item>
+            <nz-form-label [nzSpan]="24" nzFor="username">Username</nz-form-label>
+            <nz-form-control [nzSpan]="24">
+              <input
+                nz-input
+                id="username"
+                name="username"
+                type="text"
+                placeholder="Username"
+                [(ngModel)]="username"
+                required
+              />
+            </nz-form-control>
+          </nz-form-item>
+
+          <nz-form-item>
+            <nz-form-label [nzSpan]="24" nzFor="password">Password</nz-form-label>
+            <nz-form-control [nzSpan]="24">
+              <input
+                nz-input
+                id="password"
+                name="password"
+                type="password"
+                placeholder="Password"
+                [(ngModel)]="password"
+                required
+              />
+            </nz-form-control>
+          </nz-form-item>
+
+          <button
+            nz-button
+            nzType="primary"
+            class="signin-btn"
+            style="width: 100%; margin-top: 16px;"
+            type="submit"
+          >
+            Sign In
+          </button>
+          <div class="error-message" *ngIf="errorMessage">
+            {{ errorMessage }}
+        </div>
+        </form>
+      <!-- </div> -->
+    </div>
   </div>
 </div>
